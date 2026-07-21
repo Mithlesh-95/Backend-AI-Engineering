@@ -26,3 +26,31 @@ async def get_tasks(id: int):
         if task["id"] == id:
             return task
     raise HTTPException(status_code=404, detail=f"Task {id} not found")
+
+from pydantic import BaseModel
+
+class Task(BaseModel):
+    title: str
+
+@app.post("/tasks", status_code=201)
+async def add_task(task: Task):
+
+    if task.title.strip() == "string" or task.title.strip() == "":
+        raise HTTPException(
+            status_code=400,
+            detail="Title cannot be empty"
+        )
+
+    new_task = {
+        "id": len(tasks_list) + 1,
+        "title": task.title,
+        "done": False
+    }
+
+    tasks_list.append(new_task)
+
+    return {
+        "message": "Task added successfully",
+        "task": new_task
+    }
+
